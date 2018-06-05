@@ -8,40 +8,44 @@ require 'base64'
 require 'highline'
 require 'json'
 
-BASE_URL = 'https://shibidp.cit.cornell.edu/idp/profile/SAML2/Unsolicited/SSO?providerId=urn:amazon:webservices'.freeze
+BASE_URL = 'https://as1.fim.psu.edu/idp/profile/SAML2/Unsolicited/SSO?providerId=urn:amazon:webservices'.freeze
 AWS_ROLE = 'https://aws.amazon.com/SAML/Attributes/Role'.freeze
-AWS_CONFIG_FILE = '/.aws/credentials'.freeze
+AWS_CONFIG_FILE = '/.aws/credentials2'.freeze
 REGION = 'us-east-1'.freeze
 OUTPUT_FORMAT = 'json'.freeze
 
 cli = HighLine.new
 
 # Get the federated credentials from the user
-print 'netid: '
-netid = STDIN.gets.chomp
+print 'login: '
+login = STDIN.gets.chomp
 password = cli.ask('Enter your password:  ') { |q| q.echo = '*' }
 print ''
 
 driver = Selenium::WebDriver.for :firefox
 driver.navigate.to BASE_URL
 
+print 'zero'
 wait = Selenium::WebDriver::Wait.new(timeout: 30) # seconds
-wait.until { driver.find_element(id: 'netid') }
+wait.until { driver.find_element(id: 'login') }
+print 'one'
 
-element = driver.find_element(:id, 'netid')
-element.send_keys netid
+element = driver.find_element(:id, 'login')
+element.send_keys login
 element = driver.find_element(:id, 'password')
 element.send_keys password
+
 element.submit
 
 sleep 5
 
-wait.until { driver.find_element(id: 'duo_iframe') }
-driver.switch_to.frame 'duo_iframe'
-wait.until { driver.find_element(name: 'passcode') }
-driver.find_element(:css, 'button.positive.auth-button').click
+print 'two'
+wait.until { driver.find_element(id: 'duo_device') }
+print 'three'
+element = driver.find_element(:name, 'service')
 
-driver.switch_to.default_content
+element.submit
+#driver.switch_to.default_content
 wait.until { driver.find_element(name: 'SAMLResponse') }
 assertion = driver.find_element(:name, 'SAMLResponse').attribute('value')
 
@@ -89,6 +93,7 @@ token = sts.assume_role_with_saml(role_arn: role_arn,
 
 # Write the AWS STS token into the AWS credential file
 filename = Dir.home + AWS_CONFIG_FILE
+#print filename
 
 # Read in the existing config file
 config = ParseConfig.new(filename)

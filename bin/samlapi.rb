@@ -22,6 +22,7 @@ login = STDIN.gets.chomp
 password = cli.ask('Enter your password:  ') { |q| q.echo = '*' }
 print ''
 
+puts 'Launching WebAccess page...'
 driver = Selenium::WebDriver.for :firefox
 driver.navigate.to BASE_URL
 
@@ -35,8 +36,10 @@ element.send_keys login
 element = driver.find_element(:id, 'password')
 element.send_keys password
 
+puts 'Posting WebAccess Credentials...'
 element.submit
 
+puts 'Sleeping 5 seconds...'
 sleep 5
 
 # print 'two'
@@ -44,8 +47,10 @@ wait.until { driver.find_element(id: 'duo_device') }
 # print 'three'
 element = driver.find_element(:name, 'service')
 
+puts 'Sending a DUO Push...'
 element.submit
 #driver.switch_to.default_content
+
 wait.until { driver.find_element(name: 'SAMLResponse') }
 assertion = driver.find_element(:name, 'SAMLResponse').attribute('value')
 

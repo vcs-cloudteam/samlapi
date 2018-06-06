@@ -1,6 +1,6 @@
 FROM cucloudcollab/xvfb-firefox
 
-MAINTAINER Shawn Bower shawn.bower@gmail.com
+MAINTAINER Dom DePasquale dad264@psu.edu
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
   zlib1g-dev \

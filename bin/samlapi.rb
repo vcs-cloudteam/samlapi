@@ -10,7 +10,7 @@ require 'json'
 
 BASE_URL = 'https://as1.fim.psu.edu/idp/profile/SAML2/Unsolicited/SSO?providerId=urn:amazon:webservices'.freeze
 AWS_ROLE = 'https://aws.amazon.com/SAML/Attributes/Role'.freeze
-AWS_CONFIG_FILE = '/.aws/credentials2'.freeze
+AWS_CONFIG_FILE = '/.aws/credentials'.freeze
 REGION = 'us-east-1'.freeze
 OUTPUT_FORMAT = 'json'.freeze
 
@@ -25,10 +25,10 @@ print ''
 driver = Selenium::WebDriver.for :firefox
 driver.navigate.to BASE_URL
 
-print 'zero'
+# print 'zero'
 wait = Selenium::WebDriver::Wait.new(timeout: 30) # seconds
 wait.until { driver.find_element(id: 'login') }
-print 'one'
+# print 'one'
 
 element = driver.find_element(:id, 'login')
 element.send_keys login
@@ -39,9 +39,9 @@ element.submit
 
 sleep 5
 
-print 'two'
+# print 'two'
 wait.until { driver.find_element(id: 'duo_device') }
-print 'three'
+# print 'three'
 element = driver.find_element(:name, 'service')
 
 element.submit
@@ -93,7 +93,7 @@ token = sts.assume_role_with_saml(role_arn: role_arn,
 
 # Write the AWS STS token into the AWS credential file
 filename = Dir.home + AWS_CONFIG_FILE
-#print filename
+# puts filename
 
 # Read in the existing config file
 config = ParseConfig.new(filename)

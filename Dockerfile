@@ -1,6 +1,6 @@
 FROM cucloudcollab/xvfb-firefox
 
-MAINTAINER Dom DePasquale dad264@psu.edu
+LABEL maintainer="Dom DePasquale dad264@psu.edu"
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
   zlib1g-dev \

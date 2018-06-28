@@ -91,6 +91,7 @@ else
   role_arn = aws_roles[0][:role_arn]
 end
 
+
 sts = Aws::STS::Client.new(region: 'us-east-1')
 token = sts.assume_role_with_saml(role_arn: role_arn,
                                   principal_arn: principal_arn,
@@ -98,7 +99,13 @@ token = sts.assume_role_with_saml(role_arn: role_arn,
 
 # Write the AWS STS token into the AWS credential file
 filename = Dir.home + AWS_CONFIG_FILE
-# puts filename
+
+if not File.file?(filename)
+  puts "Creating #{filename}"
+  File.open(filename, "w") {}
+else
+  puts "Reading #{filename}"
+end
 
 # Read in the existing config file
 config = ParseConfig.new(filename)
@@ -111,6 +118,8 @@ config.add_to_group('saml', 'aws_access_key_id', token.credentials.access_key_id
 config.add_to_group('saml', 'aws_secret_access_key', token.credentials.secret_access_key)
 config.add_to_group('saml', 'aws_session_token', token.credentials.session_token)
 
+puts "Writing #{filename}"
+
 # Write the updated config file
 file = File.open(filename, 'w')
 config.write(file, false)
@@ -122,4 +131,9 @@ puts 'Your new access key pair has been stored in the AWS configuration file und
 puts "Note that it will expire at #{token.credentials.expiration}."
 puts 'After this time you may safely rerun this script to refresh your access key pair.'
 puts 'To use this credential call the AWS CLI with the --profile option (e.g. aws --profile saml ec2 describe-instances).'
+puts 
+puts 'Optionall, simply copy/paste the following into the shell in which you wish to access AWS via the chosen role:'
+puts "export AWS_ACCESS_KEY_ID=\"#{token.credentials.access_key_id}\""
+puts "export AWS_SECRET_ACCESS_KEY=\"#{token.credentials.secret_access_key}\""
+puts "export AWS_SESSION_TOKEN=\"#{token.credentials.session_token}\""
 puts "----------------------------------------------------------------\n\n"
